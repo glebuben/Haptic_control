@@ -58,10 +58,11 @@ HDCallbackCode HDCALLBACK forceCallback(void *userData)
 //              << position[1] << ", "
 //              << position[2] << ")"
 //              << std::endl;
-    force[0] = -position[0] * 0.11; // Коэффициент управляет "жесткостью" силы
-    force[1] = -position[1] * 0.11;
-    force[2] = -position[2] * 0.11;
-
+    if(mymsg.command == 65538) {
+        force[0] = -position[0] * 0.02; // Коэффициент управляет "жесткостью" силы
+        force[1] = -position[1] * 0.02;
+        force[2] = -position[2] * 0.02;
+    }
     hdSetDoublev(HD_CURRENT_FORCE, force);
 
     hdEndFrame(hdGetCurrentDevice());
