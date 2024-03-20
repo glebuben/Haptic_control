@@ -7,18 +7,12 @@ extern int rcvd;
 extern int iSendResult;
 extern SOCKET ListenSocket;
 extern SOCKET ClientSocket;
-extern int station_server;
 struct msg
 {
-    int station_server;
     int command;
-    std::string spring_type;
     double x;
     double y;
     double z;
-    double phi;
-    double theta;
-    double psi;
 };
 
 extern msg mymsg;
@@ -110,12 +104,10 @@ int server()
         {
             // mtx.lock(); // used to prevent access from other threads while changing its value
             rcvd = recv(ClientSocket, (char *)&mymsg, sizeof(msg), 0);
-            std::cout << "command " << mymsg.command
-                      << "  status  " << mymsg.station_server << "  spring type  "<<mymsg.spring_type<< std::endl;
+            std::cout << "command " << mymsg.command << std::endl;
             // mtx.unlock();
             if (rcvd > 0)
             {
-                mymsg.station_server = station_server;
                 printf("Bytes received: %d\n", rcvd);
                 iSendResult = send(ClientSocket, (char *)&mymsg, sizeof(msg), 0);
                 if (iSendResult == SOCKET_ERROR)

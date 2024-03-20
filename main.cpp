@@ -3,7 +3,26 @@
 #include <HD/hd.h>
 #include <HDU/hduError.h>
 #include <HDU/hduVector.h>
+#include "server.h"
+#include <thread>
+bool terminateThread = false;
 
+SOCKET ListenSocket = INVALID_SOCKET;
+SOCKET ClientSocket = INVALID_SOCKET;
+int iSendResult = 0;
+char recvbuf[1024];
+int rcvd = 0;
+
+std::mutex mtx;
+struct msg
+{
+    int command;
+    double x;
+    double y;
+    double z;
+};
+msg mymsg;
+int command = mymsg.command;
 HDCallbackCode HDCALLBACK positionCallback(void *userData)
 {
     hdBeginFrame(hdGetCurrentDevice());
@@ -34,11 +53,11 @@ HDCallbackCode HDCALLBACK forceCallback(void *userData)
     // притягиваем стилус к началу координат.
     // Пример: простая пропорциональная сила, направленная к центру.
     hduVector3Dd force;
-    std::cout << "Current position: ("
-              << position[0] << ", "
-              << position[1] << ", "
-              << position[2] << ")"
-              << std::endl;
+//    std::cout << "Current position: ("
+//              << position[0] << ", "
+//              << position[1] << ", "
+//              << position[2] << ")"
+//              << std::endl;
     force[0] = -position[0] * 0.11; // Коэффициент управляет "жесткостью" силы
     force[1] = -position[1] * 0.11;
     force[2] = -position[2] * 0.11;
@@ -52,6 +71,8 @@ HDCallbackCode HDCALLBACK forceCallback(void *userData)
 
 int main()
 {
+    std::thread serverThread(server);
+    serverThread.detach();
     HDErrorInfo error;
     HHD hHD = hdInitDevice(HD_DEFAULT_DEVICE);
     if (HD_DEVICE_ERROR(error = hdGetError()))
