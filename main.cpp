@@ -4,64 +4,80 @@
 #include <HDU/hduError.h>
 #include <HDU/hduVector.h>
 
-// Функция обратного вызова, которая будет вызвана планировщиком
 HDCallbackCode HDCALLBACK positionCallback(void *userData)
 {
-    // Получаем текущее положение стилуса
+    hdBeginFrame(hdGetCurrentDevice());
+
     hduVector3Dd position;
     hdGetDoublev(HD_CURRENT_POSITION, position);
 
-    // Выводим положение стилуса
+    hdEndFrame(hdGetCurrentDevice());
+
     std::cout << "Current position: ("
               << position[0] << ", "
               << position[1] << ", "
               << position[2] << ")"
               << std::endl;
 
-    // Эта функция должна возвращать HD_CALLBACK_CONTINUE, чтобы быть вызванной снова,
-    // или HD_CALLBACK_DONE, чтобы остановить ее вызов.
     return HD_CALLBACK_CONTINUE;
 }
-int main() {
+
+HDCallbackCode HDCALLBACK forceCallback(void *userData)
+{
+    hdBeginFrame(hdGetCurrentDevice());
+
+    // Текущее положение стилуса
+    hduVector3Dd position;
+    hdGetDoublev(HD_CURRENT_POSITION, position);
+
+    // Вычисляем силу как функцию от положения. В этом случае просто
+    // притягиваем стилус к началу координат.
+    // Пример: простая пропорциональная сила, направленная к центру.
+    hduVector3Dd force;
+    std::cout << "Current position: ("
+              << position[0] << ", "
+              << position[1] << ", "
+              << position[2] << ")"
+              << std::endl;
+    force[0] = -position[0] * 0.11; // Коэффициент управляет "жесткостью" силы
+    force[1] = -position[1] * 0.11;
+    force[2] = -position[2] * 0.11;
+
+    hdSetDoublev(HD_CURRENT_FORCE, force);
+
+    hdEndFrame(hdGetCurrentDevice());
+
+    return HD_CALLBACK_CONTINUE;
+}
+
+int main()
+{
     HDErrorInfo error;
     HHD hHD = hdInitDevice(HD_DEFAULT_DEVICE);
     if (HD_DEVICE_ERROR(error = hdGetError()))
     {
-        fprintf(stderr, "Failed to initialize haptic device: %s\n", hdGetErrorString(error.errorCode));
-        return 1;
+        std::cerr << "Failed to initialize haptic device: " << hdGetErrorString(error.errorCode) << std::endl;
+        return -1;
     }
 
     hdEnable(HD_FORCE_OUTPUT);
     hdStartScheduler();
     if (HD_DEVICE_ERROR(error = hdGetError()))
     {
-        fprintf(stderr, "Failed to start the scheduler: %s\n", hdGetErrorString(error.errorCode));
+        std::cerr << "Failed to start the scheduler: " << hdGetErrorString(error.errorCode) << std::endl;
         hdDisableDevice(hHD);
-        return 1;
+        return -1;
     }
 
-//    while (true) // В реальном приложении здесь должно быть условие выхода
-//    {
-//        hdBeginFrame(hHD);
-//
-//        hduVector3Dd position;
-//        hdGetDoublev(HD_CURRENT_POSITION, position);
-//
-//        // Вычисление силы сопротивления как функции от положения
-//        // В этом примере просто используем пропорциональное отрицательное значение позиции для создания силы
-////        hduVector3Dd force = {-10, 0, 0};
-//
-//        // Установка силы сопротивления
-////        hdSetDoublev(HD_CURRENT_FORCE, force);
-//
-//        hdEndFrame(hHD);
-//
-//        printf("Stylus Position: (%f, %f, %f)\n", position[0], position[1], position[2]);
-//
-//        // В реальном приложении здесь может быть задержка или обработка событий GUI
-//    }
+//    HDulong callbackHandle = hdScheduleAsynchronous(positionCallback, NULL, HD_DEFAULT_SCHEDULER_PRIORITY);
+    HDulong callbackHandle = hdScheduleAsynchronous(forceCallback, NULL, HD_DEFAULT_SCHEDULER_PRIORITY);
 
+    std::cout << "Press Enter to quit..." << std::endl;
+    std::cin.get();
+
+    hdUnschedule(callbackHandle);
     hdStopScheduler();
     hdDisableDevice(hHD);
+
     return 0;
 }
