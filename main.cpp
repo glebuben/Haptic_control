@@ -16,10 +16,23 @@ int rcvd = 0;
 std::mutex mtx;
 struct msg
 {
+    std::int64_t milliseconds;
     int command;
     double x;
     double y;
     double z;
+    double fa1;
+    double fa2;
+    double fa3;
+    double fa4;
+    double fa5;
+    double fa6;
+    double fa7;
+    double fx;
+    double fy;
+    double fz;
+
+
 };
 msg mymsg;
 int command = mymsg.command;

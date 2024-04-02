@@ -14,6 +14,17 @@ struct msg
     double x;
     double y;
     double z;
+    double fa1;
+    double fa2;
+    double fa3;
+    double fa4;
+    double fa5;
+    double fa6;
+    double fa7;
+    double fx;
+    double fy;
+    double fz;
+
 
 };
 
@@ -106,16 +117,19 @@ int server()
         {
             // mtx.lock(); // used to prevent access from other threads while changing its value
             rcvd = recv(ClientSocket, (char *)&mymsg, sizeof(msg), 0);
-            std::cout << "command " << mymsg.milliseconds << std::endl;
+            std::cout << "timestamp " << mymsg.milliseconds << std::endl;
             std::cout << "command " << mymsg.command << std::endl;
             std::cout << "x " << mymsg.x << std::endl;
             std::cout << "y " << mymsg.y << std::endl;
             std::cout << "z " << mymsg.z << std::endl;
-
+            mymsg.fa1 = 12;
             // mtx.unlock();
             if (rcvd > 0)
             {
                 printf("Bytes received: %d\n", rcvd);
+
+
+
                 iSendResult = send(ClientSocket, (char *)&mymsg, sizeof(msg), 0);
                 if (iSendResult == SOCKET_ERROR)
                 {
