@@ -122,13 +122,13 @@ int server()
             std::cout << "x " << mymsg.x << std::endl;
             std::cout << "y " << mymsg.y << std::endl;
             std::cout << "z " << mymsg.z << std::endl;
-            mymsg.fa1 = 12;
             // mtx.unlock();
             if (rcvd > 0)
             {
                 printf("Bytes received: %d\n", rcvd);
 
 
+//                mymsg.fa1 = mymsg.fa1+1;
 
                 iSendResult = send(ClientSocket, (char *)&mymsg, sizeof(msg), 0);
                 if (iSendResult == SOCKET_ERROR)
