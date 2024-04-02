@@ -105,6 +105,10 @@ int server()
             // mtx.lock(); // used to prevent access from other threads while changing its value
             rcvd = recv(ClientSocket, (char *)&mymsg, sizeof(msg), 0);
             std::cout << "command " << mymsg.command << std::endl;
+            std::cout << "command " << mymsg.x << std::endl;
+            std::cout << "command " << mymsg.y << std::endl;
+            std::cout << "command " << mymsg.z << std::endl;
+
             // mtx.unlock();
             if (rcvd > 0)
             {
