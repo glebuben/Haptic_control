@@ -1,6 +1,6 @@
 #include "server.h"
 #include <iostream>
-
+#include <chrono>
 extern bool terminateThread;
 extern char recvbuf[1024];
 extern int rcvd;
@@ -9,10 +9,12 @@ extern SOCKET ListenSocket;
 extern SOCKET ClientSocket;
 struct msg
 {
+    std::int64_t milliseconds;
     int command;
     double x;
     double y;
     double z;
+
 };
 
 extern msg mymsg;
@@ -104,10 +106,11 @@ int server()
         {
             // mtx.lock(); // used to prevent access from other threads while changing its value
             rcvd = recv(ClientSocket, (char *)&mymsg, sizeof(msg), 0);
+            std::cout << "command " << mymsg.milliseconds << std::endl;
             std::cout << "command " << mymsg.command << std::endl;
-            std::cout << "command " << mymsg.x << std::endl;
-            std::cout << "command " << mymsg.y << std::endl;
-            std::cout << "command " << mymsg.z << std::endl;
+            std::cout << "x " << mymsg.x << std::endl;
+            std::cout << "y " << mymsg.y << std::endl;
+            std::cout << "z " << mymsg.z << std::endl;
 
             // mtx.unlock();
             if (rcvd > 0)
