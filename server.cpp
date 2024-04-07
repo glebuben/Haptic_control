@@ -59,12 +59,14 @@ int server()
         hints.ai_flags = AI_PASSIVE;
 
         // Resolve the server address and port
-        iResult = getaddrinfo(NULL, "65000", &hints, &result);
+        iResult = getaddrinfo("172.31.1.20", "65000", &hints, &result);
         if (iResult != 0)
         {
             printf("getaddrinfo failed with error: %d\n", iResult);
             WSACleanup();
             return 1;
+        }else{
+            printf("Server hase been opened\n");
         }
 
         // Create a SOCKET for connecting to server
@@ -75,6 +77,8 @@ int server()
             freeaddrinfo(result);
             WSACleanup();
             return 1;
+        }else{
+            printf("Connected\n");
         }
 
         // Setup the TCP listening socket
@@ -86,6 +90,8 @@ int server()
             closesocket(ListenSocket);
             WSACleanup();
             return 1;
+        }else{
+            printf("Binded");
         }
 
         freeaddrinfo(result);
@@ -107,17 +113,25 @@ int server()
             closesocket(ListenSocket);
             WSACleanup();
             return 1;
+        }else{
+            printf("accepted\n");
         }
 
         // No longer need server socket
-        closesocket(ListenSocket);
+//        closesocket(ListenSocket);
 
         // Receive until the peer shuts down the connection
+
         do
         {
+//            auto now = std::chrono::system_clock::now();
+//            // Преобразуем текущее время в количество миллисекунд с эпохи
+//            auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch());
+//            // Получаем количество миллисекунд как int64_t
+//            std::int64_t milliseconds = duration.count();
             // mtx.lock(); // used to prevent access from other threads while changing its value
             rcvd = recv(ClientSocket, (char *)&mymsg, sizeof(msg), 0);
-            std::cout << "timestamp " << mymsg.milliseconds << std::endl;
+//            std::cout << "timestamp " << mymsg.milliseconds <<" time now "<<milliseconds<<std::endl;
             std::cout << "command " << mymsg.command << std::endl;
             std::cout << "x " << mymsg.x << std::endl;
             std::cout << "y " << mymsg.y << std::endl;
@@ -126,10 +140,6 @@ int server()
             if (rcvd > 0)
             {
                 printf("Bytes received: %d\n", rcvd);
-
-
-//                mymsg.fa1 = mymsg.fa1+1;
-
                 iSendResult = send(ClientSocket, (char *)&mymsg, sizeof(msg), 0);
                 if (iSendResult == SOCKET_ERROR)
                 {

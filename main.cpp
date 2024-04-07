@@ -45,12 +45,16 @@ HDCallbackCode HDCALLBACK positionCallback(void *userData)
 
     hdEndFrame(hdGetCurrentDevice());
 
-    std::cout << "Current position: ("
-              << position[0] << ", "
-              << position[1] << ", "
-              << position[2] << ")"
-              << std::endl;
-
+//    std::cout << "Current position: ("
+//              << position[0] << ", "
+//              << position[1] << ", "
+//              << position[2] << ")"
+//              << std::endl;
+    mtx.lock();
+    mymsg.x = position[0];
+    mymsg.y = position[1];
+    mymsg.z = position[2];
+    mtx.unlock();
     return HD_CALLBACK_CONTINUE;
 }
 
@@ -105,7 +109,7 @@ int main()
     }
 
 //    HDulong callbackHandle = hdScheduleAsynchronous(positionCallback, NULL, HD_DEFAULT_SCHEDULER_PRIORITY);
-    HDulong callbackHandle = hdScheduleAsynchronous(forceCallback, NULL, HD_DEFAULT_SCHEDULER_PRIORITY);
+    HDulong callbackHandle = hdScheduleAsynchronous(positionCallback, NULL, HD_DEFAULT_SCHEDULER_PRIORITY);
 
     std::cout << "Press Enter to quit..." << std::endl;
     std::cin.get();
