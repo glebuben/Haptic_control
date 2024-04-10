@@ -24,6 +24,13 @@ struct msg
     double fx;
     double fy;
     double fz;
+    double j1;
+    double j2;
+    double j3;
+    double j4;
+    double j5;
+    double j6;
+    bool button;
 
 
 };
@@ -132,10 +139,10 @@ int server()
             // mtx.lock(); // used to prevent access from other threads while changing its value
             rcvd = recv(ClientSocket, (char *)&mymsg, sizeof(msg), 0);
 //            std::cout << "timestamp " << mymsg.milliseconds <<" time now "<<milliseconds<<std::endl;
-            std::cout << "command " << mymsg.command << std::endl;
-            std::cout << "x " << mymsg.x << std::endl;
-            std::cout << "y " << mymsg.y << std::endl;
-            std::cout << "z " << mymsg.z << std::endl;
+//            std::cout << "command " << mymsg.command << std::endl;
+//            std::cout << "x " << mymsg.x << std::endl;
+//            std::cout << "y " << mymsg.y << std::endl;
+//            std::cout << "z " << mymsg.z << std::endl;
             // mtx.unlock();
             if (rcvd > 0)
             {

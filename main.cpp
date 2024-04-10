@@ -31,6 +31,15 @@ struct msg
     double fx;
     double fy;
     double fz;
+    double j1;
+    double j2;
+    double j3;
+    double j4;
+    double j5;
+    double j6;
+    bool button_1;
+    bool button_2;
+    bool inkwell;
 
 
 };
@@ -39,21 +48,54 @@ int command = mymsg.command;
 HDCallbackCode HDCALLBACK positionCallback(void *userData)
 {
     hdBeginFrame(hdGetCurrentDevice());
-
+    HDint buttonState_1 = 0;
+    HDint buttonState_2 = 0;
     hduVector3Dd position;
+    HDboolean inkwellSwitch;
+    hduVector3Dd joint_angles;
     hdGetDoublev(HD_CURRENT_POSITION, position);
-
+    hdGetIntegerv(HD_CURRENT_BUTTONS, &buttonState_1);
+    hdGetIntegerv(HD_CURRENT_BUTTONS, &buttonState_2);
+    hdGetBooleanv(HD_CURRENT_INKWELL_SWITCH, &inkwellSwitch);
+    hdGetDoublev(HD_CURRENT_JOINT_ANGLES, joint_angles);
+    hduVector3Dd joint_gimbal_angles;
+    hdGetDoublev(HD_CURRENT_GIMBAL_ANGLES, joint_gimbal_angles);
     hdEndFrame(hdGetCurrentDevice());
+//    if (buttonState_1 & HD_DEVICE_BUTTON_2) { // Assuming HD_DEVICE_BUTTON_1 corresponds to button 0
+//        std::cout << "Button 0 pressed." << std::endl;
+//        // Perform your action here
+//    }
 
-//    std::cout << "Current position: ("
-//              << position[0] << ", "
-//              << position[1] << ", "
-//              << position[2] << ")"
-//              << std::endl;
+    std::cout << "Current position: ("
+              << joint_angles[0] << ", "
+              << joint_angles[1] << ", "
+              << joint_angles[2] << ")"
+              << std::endl;
     mtx.lock();
-    mymsg.x = position[0];
-    mymsg.y = position[1];
-    mymsg.z = position[2];
+    mymsg.x = position[0]/1000;
+    mymsg.y = position[1]/1000;
+    mymsg.z = position[2]/1000;
+
+    mymsg.j1 = joint_angles[0];
+    mymsg.j2 = joint_angles[1];
+    mymsg.j3 = joint_angles[2];
+
+    mymsg.j4 = joint_gimbal_angles[0];
+    mymsg.j5 = joint_gimbal_angles[1];
+    mymsg.j6 = joint_gimbal_angles[2];
+
+    mymsg.inkwell = inkwellSwitch;
+    mymsg.button_1 =buttonState_1&1;
+    mymsg.button_2 =buttonState_1&2;
+    mymsg.inkwell = inkwellSwitch&1;
+    std::cout << "Current position angle: ("
+              << joint_angles[0] << ", "
+              << joint_angles[1] << ", "
+              << joint_angles[2] << ")"
+              << std::endl;
+
+
+//        std::cout << (inkwellSwitch&1) <<std::endl;
     mtx.unlock();
     return HD_CALLBACK_CONTINUE;
 }
